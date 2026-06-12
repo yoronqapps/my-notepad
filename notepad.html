@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notepad</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; background: #fdf8f1; font-family: 'Lora', Georgia, serif; color: #2a1e10; }
+
+  /* ── Toolbar ── */
+  #toolbar {
+    position: sticky; top: 0; z-index: 20;
+    background: rgba(253,248,241,.95); backdrop-filter: blur(10px);
+    border-bottom: 1px solid #e0d0b8;
+    padding: 8px 20px;
+    display: flex; align-items: center; gap: 2px; flex-wrap: wrap;
+  }
+  .tbtn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: transparent; border: none; border-radius: 7px;
+    color: #7a6a5a; padding: 6px 10px; cursor: pointer;
+    font-size: 12.5px; font-family: inherit; white-space: nowrap;
+    transition: background .12s, color .12s;
+  }
+  .tbtn:hover { background: #f0ebe3; }
+  .tbtn.active { background: #e8e0d4; color: #4a3728; }
+  .tbtn.danger:hover { color: #c0392b; }
+  .sep { width: 1px; height: 20px; background: #d8c8b0; margin: 0 6px; flex-shrink: 0; }
+  #stats { font-size: 11.5px; color: #b0987a; margin-right: 8px; font-family: monospace; margin-left: auto; }
+
+  /* ── Title input ── */
+  #title-btn {
+    background: none; border: none; cursor: text;
+    font-family: Georgia, serif; font-size: 15px; font-weight: bold;
+    color: #2a1e10; padding: 4px 6px; border-radius: 6;
+  }
+  #title-input {
+    font-family: Georgia, serif; font-size: 15px; font-weight: bold;
+    background: #f5ede0; border: 1px solid #c8aa88; border-radius: 6px;
+    padding: 4px 8px; color: #2a1e10; outline: none; min-width: 180px;
+    display: none;
+  }
+
+  /* ── Paper body ── */
+  #paper {
+    max-width: 700px; width: 100%; margin: 0 auto;
+    padding: 44px 52px 80px;
+  }
+  #note-title {
+    font-size: 28px; font-weight: bold; color: #2a1e10;
+    margin-bottom: 28px; line-height: 1.3;
+    border-bottom: 2px solid #e0d0b8; padding-bottom: 14px;
+    cursor: text; min-height: 40px;
+  }
+  #note-title span { color: #c8aa88; font-weight: normal; }
+
+  /* ── Entries ── */
+  .entry-wrap { position: relative; }
+  .ts-label {
+    position: absolute; left: -148px; top: 6px;
+    width: 136px; text-align: right;
+    font-size: 10.5px; color: #c8903a;
+    font-family: monospace; line-height: 1.6;
+    user-select: none; pointer-events: none; opacity: .85;
+  }
+  textarea.line {
+    width: 100%; background: transparent;
+    border: none; outline: none; resize: none; overflow: hidden;
+    font-family: 'Lora', Georgia, serif;
+    font-size: 16px; line-height: 1.85; color: #2a1e10;
+    padding: 0; margin: 0; caret-color: #8a5020;
+    display: block;
+  }
+
+  /* ── Photo entries ── */
+  .photo-entry { margin: 20px 0; position: relative; }
+  .photo-entry img {
+    display: block; width: 100%; border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0,0,0,.12);
+  }
+  .photo-caption {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 2px; margin-top: 6px;
+    font-size: 12px; color: #9a7a50; font-family: monospace;
+  }
+  .photo-caption .ts { color: #c8903a; }
+  .remove-btn {
+    background: none; border: none; cursor: pointer;
+    color: #c0392b; font-size: 12px; padding: 0 4px; opacity: .7;
+    font-family: inherit; display: none;
+  }
+  .photo-entry:hover .remove-btn { display: inline; }
+
+  /* ── Ghost zone ── */
+  #ghost { min-height: 80px; cursor: text; }
+
+  /* ── Drag overlay ── */
+  #drag-overlay {
+    display: none; position: fixed; inset: 0; z-index: 50;
+    background: rgba(200,160,80,.15);
+    border: 3px dashed #c8a050;
+    align-items: center; justify-content: center;
+    pointer-events: none;
+  }
+  #drag-overlay.show { display: flex; }
+  #drag-label {
+    background: #fdf0d8; border-radius: 16px; padding: 20px 36px;
+    font-size: 18px; color: #8a5a20; font-weight: bold;
+    box-shadow: 0 8px 32px rgba(0,0,0,.12);
+  }
+
+  /* ── Paste hint ── */
+  #paste-hint {
+    display: none; position: fixed; inset: 0; z-index: 50;
+    background: rgba(200,160,80,.15);
+    border: 3px dashed #4a8c6f;
+    align-items: center; justify-content: center;
+    pointer-events: none;
+  }
+  #paste-hint.show { display: flex; }
+  #paste-hint-label {
+    background: #f0faf6; border-radius: 16px; padding: 20px 36px;
+    font-size: 18px; color: #2a6a4a; font-weight: bold;
+    box-shadow: 0 8px 32px rgba(0,0,0,.12);
+  }
+
+  /* ── Modal ── */
+  #modal-bg {
+    display: none; position: fixed; inset: 0;
+    background: rgba(60,40,20,.35); backdrop-filter: blur(3px);
+    z-index: 100; align-items: center; justify-content: center;
+  }
+  #modal-bg.show { display: flex; }
+  #modal {
+    background: #fdf8f1; border-radius: 16px;
+    box-shadow: 0 24px 60px rgba(0,0,0,.18);
+    padding: 32px 36px; min-width: 320px;
+    font-family: Georgia, serif;
+  }
+  #modal h3 { margin: 0 0 6px; font-size: 19px; color: #3a2a1a; }
+  #modal p  { margin: 0 0 24px; font-size: 13px; color: #9a8a7a; }
+  .save-opt {
+    display: flex; align-items: center; gap: 16px;
+    border-radius: 10px; padding: 14px 16px;
+    cursor: pointer; text-align: left; width: 100%;
+    color: #3a2a1a; font-family: inherit; margin-bottom: 12px;
+    transition: transform .1s, box-shadow .1s;
+  }
+  .save-opt:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,.1); }
+  .save-opt-html { background: #f0faf6; border: 1.5px solid rgba(74,140,111,.19); }
+  .save-opt-txt  { background: #f0f4fa; border: 1.5px solid rgba(74,106,140,.19); }
+  .save-opt .emoji { font-size: 22px; }
+  .save-opt .opt-title { font-weight: bold; font-size: 14px; }
+  .save-opt .opt-sub   { font-size: 12px; opacity: .7; margin-top: 2px; }
+  #modal-cancel {
+    margin-top: 8px; width: 100%; background: none;
+    border: 1px solid #ddd; border-radius: 8px; padding: 8px;
+    color: #9a8a7a; cursor: pointer; font-size: 13px; font-family: inherit;
+  }
+
+  /* ── Toast ── */
+  #toast {
+    display: none; position: fixed; bottom: 28px; left: 50%;
+    transform: translateX(-50%);
+    background: #2a1e10; color: #fdf0d8;
+    padding: 10px 22px; border-radius: 99px;
+    font-size: 13px; font-family: monospace;
+    box-shadow: 0 6px 24px rgba(0,0,0,.2);
+    z-index: 200; pointer-events: none;
+    animation: fadeUp .2s ease;
+  }
+  #toast.show { display: block; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translate(-50%, 8px); }
+    to   { opacity: 1; transform: translate(-50%, 0); }
+  }
+  svg { flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<!-- Toolbar -->
+<div id="toolbar">
+  <button id="title-btn" class="tbtn" style="font-weight:bold;font-size:15px;padding:4px 6px"></button>
+  <input id="title-input" type="text" />
+  <div class="sep"></div>
+  <button class="tbtn" id="btn-ts" title="Insert timestamped line">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 6v6l4 2"/></svg>
+    Timestamp
+  </button>
+  <button class="tbtn" id="btn-auto" title="Auto-timestamp every paragraph">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 6v6l4 2"/></svg>
+    Auto
+  </button>
+  <div class="sep"></div>
+  <button class="tbtn" id="btn-photo" title="Insert photo from file">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15l-5-5L5 21"/><path d="M3 3h18v18H3z"/><path d="M8.5 8.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3"/></svg>
+    Photo
+  </button>
+  <button class="tbtn" id="btn-cam" title="Take photo with camera">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><path d="M12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg>
+    Camera
+  </button>
+  <input id="file-input" type="file" accept="image/*" style="display:none">
+  <input id="cam-input"  type="file" accept="image/*" capture="environment" style="display:none">
+
+  <span id="stats"></span>
+
+  <button class="tbtn" id="btn-save">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+    Save
+  </button>
+</div>
+
+<!-- Paper -->
+<div id="paper">
+  <div id="note-title"><span>Untitled</span></div>
+  <div id="entries"></div>
+  <div id="ghost"></div>
+</div>
+
+<!-- Drag overlay -->
+<div id="drag-overlay"><div id="drag-label">Drop photo here 📷</div></div>
+
+<!-- Paste hint overlay -->
+<div id="paste-hint"><div id="paste-hint-label">Pasting image… 📋</div></div>
+
+<!-- Save modal -->
+<div id="modal-bg">
+  <div id="modal">
+    <h3>Save your note</h3>
+    <p>Choose a format to download</p>
+    <button class="save-opt save-opt-html" id="save-html">
+      <span class="emoji">🌐</span>
+      <div><div class="opt-title">Rich note (.html)</div><div class="opt-sub">Keeps photos, timestamps, formatting</div></div>
+    </button>
+    <button class="save-opt save-opt-txt" id="save-txt">
+      <span class="emoji">📄</span>
+      <div><div class="opt-title">Plain text (.txt)</div><div class="opt-sub">Simple text, photos noted as labels</div></div>
+    </button>
+    <button id="modal-cancel">Cancel</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+// ── State ─────────────────────────────────────────────────────────────────────
+let entries = [];
+let noteTitle = "New note";
+let autoTs = false;
+let focusedId = null;
+let toastTimer = null;
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function uid()  { return Date.now() + "_" + Math.random().toString(36).slice(2); }
+function nowTs(){ return new Date().toLocaleString("en-US",{month:"short",day:"numeric",year:"numeric",hour:"2-digit",minute:"2-digit"}); }
+function slug(s){ return s.replace(/\s+/g,"-").replace(/[^a-zA-Z0-9-]/g,"").toLowerCase() || "note"; }
+
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 2200);
+}
+
+// ── Title handling ────────────────────────────────────────────────────────────
+const titleBtn   = document.getElementById("title-btn");
+const titleInput = document.getElementById("title-input");
+const noteHead   = document.getElementById("note-title");
+
+function setTitle(v) {
+  noteTitle = v || "New note";
+  titleBtn.textContent = noteTitle;
+  noteHead.innerHTML = noteTitle ? noteTitle : '<span>Untitled</span>';
+}
+setTitle("New note");
+
+titleBtn.addEventListener("click", () => {
+  titleInput.value = noteTitle;
+  titleInput.style.display = "inline-block";
+  titleBtn.style.display = "none";
+  titleInput.focus(); titleInput.select();
+});
+titleInput.addEventListener("blur",  commitTitle);
+titleInput.addEventListener("keydown", e => { if (e.key === "Enter") commitTitle(); });
+function commitTitle() {
+  setTitle(titleInput.value.trim() || "New note");
+  titleInput.style.display = "none";
+  titleBtn.style.display = "inline-block";
+}
+noteHead.addEventListener("click", () => titleBtn.click());
+
+// ── Entry operations ──────────────────────────────────────────────────────────
+function addEntry(entry, afterId) {
+  if (!afterId) {
+    entries.push(entry);
+  } else {
+    const i = entries.findIndex(e => e.id === afterId);
+    entries.splice(i + 1, 0, entry);
+  }
+  render();
+  if (entry.type === "text") {
+    setTimeout(() => focusEntry(entry.id), 20);
+  }
+}
+
+function removeEntry(id) {
+  if (entries.length <= 1) return;
+  const i = entries.findIndex(e => e.id === id);
+  entries = entries.filter(e => e.id !== id);
+  render();
+  const prev = entries[Math.max(0, i - 1)];
+  if (prev?.type === "text") setTimeout(() => focusEntry(prev.id), 20);
+}
+
+function focusEntry(id) {
+  const el = document.querySelector(`textarea[data-id="${id}"]`);
+  if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
+  focusedId = id;
+}
+
+// ── Photo insertion ───────────────────────────────────────────────────────────
+function insertPhoto(file, afterId) {
+  if (!file || !file.type.startsWith("image/")) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const photoId = uid();
+    const textId  = uid();
+    const baseId  = afterId || entries[entries.length - 1]?.id;
+
+    const photo = { id: photoId, type: "photo", src: ev.target.result,
+                    caption: file.name.replace(/\.[^/.]+$/,"") || "image", ts: nowTs() };
+    const text  = { id: textId, type: "text", content: "", ts: null };
+
+    if (!baseId) { entries.push(photo, text); }
+    else {
+      const i = entries.findIndex(e => e.id === baseId);
+      entries.splice(i + 1, 0, photo, text);
+    }
+    render();
+    setTimeout(() => focusEntry(textId), 40);
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── Clipboard paste support ───────────────────────────────────────────────────
+// Works for: Ctrl+V after copying an image in any app (screenshot tool,
+// browser, image viewer, snipping tool, etc.)
+document.addEventListener("paste", e => {
+  const items = e.clipboardData?.items;
+  if (!items) return;
+
+  for (const item of items) {
+    if (item.type.startsWith("image/")) {
+      e.preventDefault();
+
+      // Flash the paste hint overlay briefly
+      const hint = document.getElementById("paste-hint");
+      hint.classList.add("show");
+      setTimeout(() => hint.classList.remove("show"), 600);
+
+      const file = item.getAsFile();
+      // Give it a meaningful name based on timestamp
+      const namedFile = new File([file], `pasted-${Date.now()}.png`, { type: file.type });
+      insertPhoto(namedFile, focusedId);
+      return;
+    }
+  }
+});
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function render() {
+  const container = document.getElementById("entries");
+  container.innerHTML = "";
+  entries.forEach((entry, idx) => {
+    if (entry.type === "photo") {
+      container.appendChild(makePhotoEl(entry));
+    } else {
+      container.appendChild(makeTextEl(entry, idx === 0));
+    }
+  });
+  updateStats();
+}
+
+function makeTextEl(entry, isFirst) {
+  const wrap = document.createElement("div");
+  wrap.className = "entry-wrap";
+
+  if (entry.ts) {
+    const ts = document.createElement("div");
+    ts.className = "ts-label";
+    ts.textContent = entry.ts;
+    wrap.appendChild(ts);
+  }
+
+  const ta = document.createElement("textarea");
+  ta.className = "line";
+  ta.rows = 1;
+  ta.value = entry.content;
+  ta.placeholder = isFirst ? "What's on your mind…" : "";
+  ta.dataset.id = entry.id;
+
+  const autoGrow = () => {
+    ta.style.height = "auto";
+    ta.style.height = ta.scrollHeight + "px";
+  };
+  setTimeout(autoGrow, 0);
+
+  ta.addEventListener("input", () => {
+    entry.content = ta.value;
+    autoGrow();
+    updateStats();
+  });
+  ta.addEventListener("focus", () => { focusedId = entry.id; });
+  ta.addEventListener("keydown", e => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      const newId = uid();
+      const newEntry = { id: newId, type: "text", content: "", ts: autoTs ? nowTs() : null };
+      const i = entries.findIndex(x => x.id === entry.id);
+      entries.splice(i + 1, 0, newEntry);
+      render();
+      setTimeout(() => focusEntry(newId), 20);
+    }
+    if (e.key === "Backspace" && entry.content === "") {
+      e.preventDefault();
+      removeEntry(entry.id);
+    }
+  });
+  wrap.appendChild(ta);
+  return wrap;
+}
+
+function makePhotoEl(entry) {
+  const div = document.createElement("div");
+  div.className = "photo-entry";
+
+  const img = document.createElement("img");
+  img.src = entry.src; img.alt = entry.caption;
+  div.appendChild(img);
+
+  const cap = document.createElement("div");
+  cap.className = "photo-caption";
+  cap.innerHTML = `<span>${entry.caption}${entry.ts ? ` · <span class="ts">${entry.ts}</span>` : ""}</span>`;
+
+  const rm = document.createElement("button");
+  rm.className = "remove-btn"; rm.textContent = "Remove";
+  rm.addEventListener("click", () => removeEntry(entry.id));
+  cap.appendChild(rm);
+  div.appendChild(cap);
+  return div;
+}
+
+function updateStats() {
+  const words  = entries.filter(e=>e.type==="text").map(e=>e.content).join(" ").trim().split(/\s+/).filter(Boolean).length;
+  const photos = entries.filter(e=>e.type==="photo").length;
+  let s = "";
+  if (words  > 0) s += `${words}w`;
+  if (photos > 0) s += ` · ${photos} 📷`;
+  document.getElementById("stats").textContent = s;
+}
+
+// ── Initial entry ─────────────────────────────────────────────────────────────
+entries = [{ id: uid(), type: "text", content: "", ts: null }];
+render();
+
+// ── Ghost zone ────────────────────────────────────────────────────────────────
+document.getElementById("ghost").addEventListener("click", () => {
+  const last = entries[entries.length - 1];
+  if (last?.type === "text" && last.content.trim() === "") {
+    focusEntry(last.id);
+  } else {
+    const id = uid();
+    entries.push({ id, type: "text", content: "", ts: null });
+    render();
+    setTimeout(() => focusEntry(id), 20);
+  }
+});
+
+// ── Toolbar buttons ───────────────────────────────────────────────────────────
+document.getElementById("btn-ts").addEventListener("click", () => {
+  const id = uid();
+  const baseId = focusedId || entries[entries.length - 1]?.id;
+  const entry = { id, type: "text", content: "", ts: nowTs() };
+  const i = entries.findIndex(e => e.id === baseId);
+  entries.splice(i + 1, 0, entry);
+  render();
+  setTimeout(() => focusEntry(id), 20);
+});
+
+document.getElementById("btn-auto").addEventListener("click", () => {
+  autoTs = !autoTs;
+  document.getElementById("btn-auto").classList.toggle("active", autoTs);
+});
+
+document.getElementById("btn-photo").addEventListener("click", () => document.getElementById("file-input").click());
+document.getElementById("btn-cam").addEventListener("click",   () => document.getElementById("cam-input").click());
+
+document.getElementById("file-input").addEventListener("change", e => {
+  insertPhoto(e.target.files[0], focusedId);
+  e.target.value = "";
+});
+document.getElementById("cam-input").addEventListener("change", e => {
+  insertPhoto(e.target.files[0], focusedId);
+  e.target.value = "";
+});
+
+document.getElementById("btn-save").addEventListener("click", () => {
+  document.getElementById("modal-bg").classList.add("show");
+});
+document.getElementById("modal-bg").addEventListener("click", e => {
+  if (e.target === document.getElementById("modal-bg"))
+    document.getElementById("modal-bg").classList.remove("show");
+});
+document.getElementById("modal-cancel").addEventListener("click", () => {
+  document.getElementById("modal-bg").classList.remove("show");
+});
+
+// ── Drag & drop ───────────────────────────────────────────────────────────────
+document.body.addEventListener("dragover",  e => { e.preventDefault(); document.getElementById("drag-overlay").classList.add("show"); });
+document.body.addEventListener("dragleave", e => { if (!e.relatedTarget) document.getElementById("drag-overlay").classList.remove("show"); });
+document.body.addEventListener("drop", e => {
+  e.preventDefault(); document.getElementById("drag-overlay").classList.remove("show");
+  const file = [...e.dataTransfer.files].find(f => f.type.startsWith("image/"));
+  if (file) insertPhoto(file, focusedId);
+});
+
+// ── Save as HTML ──────────────────────────────────────────────────────────────
+document.getElementById("save-html").addEventListener("click", () => {
+  const body = entries.map(e => {
+    if (e.type === "photo") return `
+  <figure>
+    <img src="${e.src}" alt="${e.caption.replace(/"/g,'&quot;')}">
+    <figcaption>📷 ${e.caption}${e.ts ? ` — ${e.ts}` : ""}</figcaption>
+  </figure>`;
+    const tsSpan = e.ts ? `<time>${e.ts}</time> ` : "";
+    return `<p>${tsSpan}${e.content.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/\n/g,"<br>")}</p>`;
+  }).join("\n");
+
+  const html = `<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>${noteTitle}</title>
+<style>
+  *{box-sizing:border-box}body{font-family:Georgia,serif;max-width:680px;margin:48px auto;padding:0 24px;background:#fdf8f1;color:#2a1e10;line-height:1.8}
+  h1{font-size:26px;border-bottom:2px solid #e0d0b8;padding-bottom:12px;margin-bottom:28px}
+  p{margin:4px 0 10px;font-size:16px}time{font-size:11px;color:#b87a30;font-family:monospace;margin-right:8px}
+  figure{margin:20px 0;max-width:100%}figure img{width:100%;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.12)}
+  figcaption{font-size:12px;color:#9a8060;margin-top:6px}
+  footer{margin-top:48px;font-size:11px;color:#c0a880;border-top:1px solid #e0d0b8;padding-top:12px}
+</style></head><body>
+<h1>${noteTitle}</h1>
+${body}
+<footer>Saved ${nowTs()}</footer>
+</body></html>`;
+
+  trigger(html, `${slug(noteTitle)}.html`, "text/html");
+  document.getElementById("modal-bg").classList.remove("show");
+  showToast("Saved as .html ✓");
+});
+
+// ── Save as TXT ───────────────────────────────────────────────────────────────
+document.getElementById("save-txt").addEventListener("click", () => {
+  const lines = entries.map(e => {
+    if (e.type === "photo") return `[Photo: ${e.caption}${e.ts ? ` — ${e.ts}` : ""}]`;
+    return (e.ts ? `[${e.ts}]  ` : "") + e.content;
+  }).join("\n");
+
+  trigger(
+    `${noteTitle}\n${"─".repeat(Math.min(noteTitle.length,40))}\n\n${lines}\n\nSaved ${nowTs()}`,
+    `${slug(noteTitle)}.txt`, "text/plain"
+  );
+  document.getElementById("modal-bg").classList.remove("show");
+  showToast("Saved as .txt ✓");
+});
+
+function trigger(content, name, mime) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([content], { type: mime }));
+  a.download = name; a.click();
+  URL.revokeObjectURL(a.href);
+}
+</script>
+</body>
+</html>
