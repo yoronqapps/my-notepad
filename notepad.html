@@ -8,7 +8,6 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; }
 
-  /* ── Theme variables ── */
   :root {
     --bg:        #fdf8f1;
     --bg-bar:    rgba(253,248,241,.95);
@@ -62,7 +61,6 @@
 
   body { margin: 0; background: var(--bg); font-family: 'Lora', Georgia, serif; color: var(--text); transition: background .2s, color .2s; }
 
-  /* ── Toolbar ── */
   #toolbar {
     position: sticky; top: 0; z-index: 20;
     background: var(--bg-bar); backdrop-filter: blur(10px);
@@ -79,11 +77,9 @@
   }
   .tbtn:hover  { background: var(--btn-hover); }
   .tbtn.active { background: var(--btn-active); color: var(--btn-active-color); }
-  .tbtn.danger:hover { color: #c0392b; }
   .sep { width: 1px; height: 20px; background: var(--sep); margin: 0 6px; flex-shrink: 0; }
   #stats { font-size: 11.5px; color: var(--text-muted); margin-right: 8px; font-family: monospace; margin-left: auto; }
 
-  /* ── Title ── */
   #title-btn {
     background: none; border: none; cursor: text;
     font-family: Georgia, serif; font-size: 15px; font-weight: bold;
@@ -95,7 +91,6 @@
     padding: 4px 8px; color: var(--text); outline: none; min-width: 180px; display: none;
   }
 
-  /* ── Search bar ── */
   #search-bar {
     display: none; position: sticky; top: 49px; z-index: 19;
     background: var(--bg-bar); backdrop-filter: blur(10px);
@@ -112,14 +107,10 @@
   #search-count { font-size: 12px; color: var(--text-muted); font-family: monospace; min-width: 60px; }
   .sbtn {
     background: none; border: 1px solid var(--sep); border-radius: 6px;
-    color: var(--btn-color); padding: 4px 10px; cursor: pointer;
-    font-size: 12px; font-family: inherit;
+    color: var(--btn-color); padding: 4px 10px; cursor: pointer; font-size: 12px; font-family: inherit;
   }
   .sbtn:hover { background: var(--btn-hover); }
-  mark.hit        { background: var(--search-highlight); border-radius: 2px; color: inherit; }
-  mark.hit.active { background: var(--search-active); }
 
-  /* ── Paper ── */
   #paper { max-width: 700px; width: 100%; margin: 0 auto; padding: 44px 52px 80px; }
   #note-title {
     font-size: 28px; font-weight: bold; color: var(--text);
@@ -129,7 +120,6 @@
   }
   #note-title span { color: var(--input-border); font-weight: normal; }
 
-  /* ── Entries ── */
   .entry-wrap { position: relative; }
   .ts-label {
     position: absolute; left: -148px; top: 6px; width: 136px; text-align: right;
@@ -143,7 +133,6 @@
     color: var(--text); padding: 0; margin: 0; caret-color: var(--caret); display: block;
   }
 
-  /* ── Photos ── */
   .photo-entry { margin: 20px 0; position: relative; }
   .photo-entry img { display: block; width: 100%; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,.12); }
   .photo-caption {
@@ -158,10 +147,8 @@
   }
   .photo-entry:hover .remove-btn { display: inline; }
 
-  /* ── Ghost ── */
   #ghost { min-height: 80px; cursor: text; }
 
-  /* ── Overlays ── */
   #drag-overlay, #paste-hint {
     display: none; position: fixed; inset: 0; z-index: 50;
     align-items: center; justify-content: center; pointer-events: none;
@@ -178,7 +165,6 @@
     font-size: 18px; color: #2a6a4a; font-weight: bold; box-shadow: 0 8px 32px rgba(0,0,0,.12);
   }
 
-  /* ── Modal ── */
   #modal-bg {
     display: none; position: fixed; inset: 0;
     background: var(--modal-bg-color); backdrop-filter: blur(3px);
@@ -201,6 +187,7 @@
   .save-opt:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,.1); }
   .save-opt-html { background: #f0faf6; border: 1.5px solid rgba(74,140,111,.19); }
   .save-opt-txt  { background: #f0f4fa; border: 1.5px solid rgba(74,106,140,.19); }
+  .save-opt-pdf  { background: #fdf0f0; border: 1.5px solid rgba(180,60,60,.19); }
   .save-opt .emoji { font-size: 22px; }
   .save-opt .opt-title { font-weight: bold; font-size: 14px; }
   .save-opt .opt-sub   { font-size: 12px; opacity: .7; margin-top: 2px; }
@@ -210,7 +197,6 @@
     color: var(--text-muted); cursor: pointer; font-size: 13px; font-family: inherit;
   }
 
-  /* ── Toast ── */
   #toast {
     display: none; position: fixed; bottom: 28px; left: 50%;
     transform: translateX(-50%);
@@ -221,17 +207,30 @@
     z-index: 200; pointer-events: none;
   }
   #toast.show { display: block; animation: fadeUp .2s ease; }
-
   @keyframes fadeUp {
     from { opacity: 0; transform: translate(-50%, 8px); }
     to   { opacity: 1; transform: translate(-50%, 0); }
   }
+
+  /* ── PDF print styles ── */
+  @media print {
+    #toolbar, #search-bar, #ghost, .remove-btn { display: none !important; }
+    body { background: #fff !important; color: #000 !important; }
+    #paper { padding: 0 !important; max-width: 100% !important; }
+    textarea.line {
+      border: none !important; resize: none !important;
+      font-family: Georgia, serif !important; color: #000 !important;
+      background: transparent !important;
+    }
+    .photo-entry img { box-shadow: none !important; border-radius: 4px !important; }
+    .ts-label { color: #b87a30 !important; }
+  }
+
   svg { flex-shrink: 0; }
 </style>
 </head>
 <body>
 
-<!-- Toolbar -->
 <div id="toolbar">
   <button id="title-btn" class="tbtn" style="font-weight:bold;font-size:15px;padding:4px 6px"></button>
   <input id="title-input" type="text" />
@@ -256,28 +255,21 @@
   <input id="file-input" type="file" accept="image/*" style="display:none">
   <input id="cam-input"  type="file" accept="image/*" capture="environment" style="display:none">
   <div class="sep"></div>
-
-  <!-- Search button -->
   <button class="tbtn" id="btn-search" title="Search (Ctrl+F)">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
     Search
   </button>
-
-  <!-- Dark mode toggle -->
   <button class="tbtn" id="btn-dark" title="Toggle dark mode">
     <svg id="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/></svg>
-    <svg id="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    <svg id="icon-sun"  width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
   </button>
-
   <span id="stats"></span>
-
   <button class="tbtn" id="btn-save" title="Save (Ctrl+S)">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
     Save
   </button>
 </div>
 
-<!-- Search bar -->
 <div id="search-bar">
   <input id="search-input" type="text" placeholder="Search in note…" autocomplete="off" />
   <span id="search-count"></span>
@@ -286,18 +278,15 @@
   <button class="sbtn" id="search-close">✕</button>
 </div>
 
-<!-- Paper -->
 <div id="paper">
   <div id="note-title"><span>Untitled</span></div>
   <div id="entries"></div>
   <div id="ghost"></div>
 </div>
 
-<!-- Overlays -->
 <div id="drag-overlay"><div id="drag-label">Drop photo here 📷</div></div>
 <div id="paste-hint"><div id="paste-hint-label">Pasting image… 📋</div></div>
 
-<!-- Save modal -->
 <div id="modal-bg">
   <div id="modal">
     <h3>Save your note</h3>
@@ -305,6 +294,10 @@
     <button class="save-opt save-opt-html" id="save-html">
       <span class="emoji">🌐</span>
       <div><div class="opt-title">Rich note (.html)</div><div class="opt-sub">Keeps photos, timestamps, formatting</div></div>
+    </button>
+    <button class="save-opt save-opt-pdf" id="save-pdf">
+      <span class="emoji">📕</span>
+      <div><div class="opt-title">PDF (.pdf)</div><div class="opt-sub">Print-ready, great for sharing</div></div>
     </button>
     <button class="save-opt save-opt-txt" id="save-txt">
       <span class="emoji">📄</span>
@@ -314,7 +307,6 @@
   </div>
 </div>
 
-<!-- Toast -->
 <div id="toast"></div>
 
 <script>
@@ -325,10 +317,7 @@ let autoTs    = false;
 let focusedId = null;
 let darkMode  = false;
 let toastTimer = null;
-
-// ── Search state ──────────────────────────────────────────────────────────────
-let searchHits   = [];   // [{node, original}]
-let searchCursor = -1;
+let searchHits = [], searchCursor = -1;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function uid()   { return Date.now() + "_" + Math.random().toString(36).slice(2); }
@@ -337,8 +326,7 @@ function slug(s) { return s.replace(/\s+/g,"-").replace(/[^a-zA-Z0-9-]/g,"").toL
 
 function showToast(msg) {
   const t = document.getElementById("toast");
-  t.textContent = msg;
-  t.classList.add("show");
+  t.textContent = msg; t.classList.add("show");
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove("show"), 2200);
 }
@@ -348,36 +336,43 @@ document.getElementById("btn-dark").addEventListener("click", toggleDark);
 function toggleDark() {
   darkMode = !darkMode;
   document.body.classList.toggle("dark", darkMode);
-  document.getElementById("icon-moon").style.display = darkMode ? "none"  : "inline";
-  document.getElementById("icon-sun").style.display  = darkMode ? "inline": "none";
+  document.getElementById("icon-moon").style.display = darkMode ? "none"   : "inline";
+  document.getElementById("icon-sun").style.display  = darkMode ? "inline" : "none";
   localStorage.setItem("dark", darkMode ? "1" : "0");
 }
-// Restore preference
 if (localStorage.getItem("dark") === "1") toggleDark();
 
-// ── Ctrl+S / Ctrl+F keyboard shortcuts ───────────────────────────────────────
+// ── Keyboard shortcuts ────────────────────────────────────────────────────────
 document.addEventListener("keydown", e => {
-  if (e.ctrlKey && e.key === "s") {
-    e.preventDefault();
-    // Ctrl+S → quick-save as HTML directly (no modal)
-    quickSaveHtml();
-  }
-  if (e.ctrlKey && e.key === "f") {
-    e.preventDefault();
-    openSearch();
-  }
+  if (e.ctrlKey && e.key === "s") { e.preventDefault(); quickSaveHtml(); }
+  if (e.ctrlKey && e.key === "f") { e.preventDefault(); openSearch(); }
+  if (e.ctrlKey && e.key === "p") { e.preventDefault(); exportPdf(); }
   if (e.key === "Escape") {
     closeSearch();
     document.getElementById("modal-bg").classList.remove("show");
   }
 });
 
-// ── Quick save (Ctrl+S) — saves HTML silently ─────────────────────────────────
+// ── Quick save ────────────────────────────────────────────────────────────────
 function quickSaveHtml() {
-  const body = buildHtmlBody();
-  const html = wrapHtml(body);
-  trigger(html, `${slug(noteTitle)}.html`, "text/html");
+  trigger(wrapHtml(buildHtmlBody()), `${slug(noteTitle)}.html`, "text/html");
   showToast("Saved ✓");
+}
+
+// ── PDF export ────────────────────────────────────────────────────────────────
+async function exportPdf() {
+  if (!window.electronAPI) {
+    showToast("PDF only available in the desktop app");
+    return;
+  }
+  showToast("Preparing PDF…");
+  const result = await window.electronAPI.savePdf(`${slug(noteTitle)}.pdf`);
+  if (result.ok) {
+    showToast("PDF saved ✓");
+  } else if (result.error) {
+    showToast("PDF failed: " + result.error);
+  }
+  // if canceled, do nothing
 }
 
 // ── Title ─────────────────────────────────────────────────────────────────────
@@ -393,31 +388,18 @@ function setTitle(v) {
 setTitle("New note");
 
 titleBtn.addEventListener("click", () => {
-  titleInput.value = noteTitle;
-  titleInput.style.display = "inline-block";
-  titleBtn.style.display = "none";
-  titleInput.focus(); titleInput.select();
+  titleInput.value = noteTitle; titleInput.style.display = "inline-block";
+  titleBtn.style.display = "none"; titleInput.focus(); titleInput.select();
 });
 titleInput.addEventListener("blur",    commitTitle);
 titleInput.addEventListener("keydown", e => { if (e.key === "Enter") commitTitle(); });
 function commitTitle() {
   setTitle(titleInput.value.trim() || "New note");
-  titleInput.style.display = "none";
-  titleBtn.style.display = "inline-block";
+  titleInput.style.display = "none"; titleBtn.style.display = "inline-block";
 }
 noteHead.addEventListener("click", () => titleBtn.click());
 
 // ── Entry operations ──────────────────────────────────────────────────────────
-function addEntry(entry, afterId) {
-  if (!afterId) { entries.push(entry); }
-  else {
-    const i = entries.findIndex(e => e.id === afterId);
-    entries.splice(i + 1, 0, entry);
-  }
-  render();
-  if (entry.type === "text") setTimeout(() => focusEntry(entry.id), 20);
-}
-
 function removeEntry(id) {
   if (entries.length <= 1) return;
   const i = entries.findIndex(e => e.id === id);
@@ -458,8 +440,7 @@ document.addEventListener("paste", e => {
     if (item.type.startsWith("image/")) {
       e.preventDefault();
       const hint = document.getElementById("paste-hint");
-      hint.classList.add("show");
-      setTimeout(() => hint.classList.remove("show"), 600);
+      hint.classList.add("show"); setTimeout(() => hint.classList.remove("show"), 600);
       const file = item.getAsFile();
       insertPhoto(new File([file], `pasted-${Date.now()}.png`, { type: file.type }), focusedId);
       return;
@@ -469,89 +450,58 @@ document.addEventListener("paste", e => {
 
 // ── Search ────────────────────────────────────────────────────────────────────
 function openSearch() {
-  const bar = document.getElementById("search-bar");
-  bar.classList.add("show");
+  document.getElementById("search-bar").classList.add("show");
+  document.getElementById("btn-search").classList.add("active");
   const inp = document.getElementById("search-input");
   inp.focus(); inp.select();
 }
 function closeSearch() {
   document.getElementById("search-bar").classList.remove("show");
-  clearHighlights();
+  document.getElementById("btn-search").classList.remove("active");
+  document.querySelectorAll("textarea.line").forEach(ta => ta.setSelectionRange(0,0));
   searchHits = []; searchCursor = -1;
   document.getElementById("search-count").textContent = "";
-  document.getElementById("btn-search").classList.remove("active");
 }
-
 document.getElementById("btn-search").addEventListener("click", () => {
-  const bar = document.getElementById("search-bar");
-  if (bar.classList.contains("show")) { closeSearch(); }
-  else { openSearch(); document.getElementById("btn-search").classList.add("active"); }
+  document.getElementById("search-bar").classList.contains("show") ? closeSearch() : openSearch();
 });
 document.getElementById("search-close").addEventListener("click", closeSearch);
 document.getElementById("search-next").addEventListener("click", () => moveSearch(1));
 document.getElementById("search-prev").addEventListener("click", () => moveSearch(-1));
-
-document.getElementById("search-input").addEventListener("input", () => {
-  doSearch(document.getElementById("search-input").value);
-});
+document.getElementById("search-input").addEventListener("input", () => doSearch(document.getElementById("search-input").value));
 document.getElementById("search-input").addEventListener("keydown", e => {
   if (e.key === "Enter")  { e.preventDefault(); moveSearch(e.shiftKey ? -1 : 1); }
-  if (e.key === "Escape") { closeSearch(); }
+  if (e.key === "Escape") closeSearch();
 });
 
 function doSearch(query) {
-  clearHighlights();
+  document.querySelectorAll("textarea.line").forEach(ta => ta.setSelectionRange(0,0));
   searchHits = []; searchCursor = -1;
   if (!query.trim()) { document.getElementById("search-count").textContent = ""; return; }
-
   const q = query.toLowerCase();
-  // Search through all textareas
   document.querySelectorAll("textarea.line").forEach(ta => {
-    const text = ta.value;
-    const lower = text.toLowerCase();
-    let idx = 0;
+    const lower = ta.value.toLowerCase(); let idx = 0;
     while ((idx = lower.indexOf(q, idx)) !== -1) {
-      searchHits.push({ ta, start: idx, end: idx + q.length });
-      idx += q.length;
+      searchHits.push({ ta, start: idx, end: idx + q.length }); idx += q.length;
     }
   });
-
   updateSearchCount();
   if (searchHits.length > 0) { searchCursor = 0; highlightCurrent(); }
 }
-
 function moveSearch(dir) {
-  if (searchHits.length === 0) return;
+  if (!searchHits.length) return;
   searchCursor = (searchCursor + dir + searchHits.length) % searchHits.length;
-  highlightCurrent();
-  updateSearchCount();
+  highlightCurrent(); updateSearchCount();
 }
-
 function highlightCurrent() {
-  if (searchHits.length === 0) return;
   const hit = searchHits[searchCursor];
-  // Scroll textarea into view and select the match
-  hit.ta.focus();
-  hit.ta.setSelectionRange(hit.start, hit.end);
+  hit.ta.focus(); hit.ta.setSelectionRange(hit.start, hit.end);
   hit.ta.scrollIntoView({ behavior: "smooth", block: "center" });
 }
-
-function clearHighlights() {
-  // Just restore any selections
-  document.querySelectorAll("textarea.line").forEach(ta => {
-    ta.setSelectionRange(0, 0);
-  });
-}
-
 function updateSearchCount() {
   const el = document.getElementById("search-count");
-  if (searchHits.length === 0) {
-    el.textContent = "No results";
-    el.style.color = "#c0392b";
-  } else {
-    el.textContent = `${searchCursor + 1} / ${searchHits.length}`;
-    el.style.color = "var(--text-muted)";
-  }
+  if (!searchHits.length) { el.textContent = "No results"; el.style.color = "#c0392b"; }
+  else { el.textContent = `${searchCursor + 1} / ${searchHits.length}`; el.style.color = "var(--text-muted)"; }
 }
 
 // ── Render ────────────────────────────────────────────────────────────────────
@@ -559,28 +509,22 @@ function render() {
   const container = document.getElementById("entries");
   container.innerHTML = "";
   entries.forEach((entry, idx) => {
-    if (entry.type === "photo") container.appendChild(makePhotoEl(entry));
-    else container.appendChild(makeTextEl(entry, idx === 0));
+    container.appendChild(entry.type === "photo" ? makePhotoEl(entry) : makeTextEl(entry, idx === 0));
   });
   updateStats();
-  // Re-run search if active
   const q = document.getElementById("search-input").value;
   if (q && document.getElementById("search-bar").classList.contains("show")) doSearch(q);
 }
 
 function makeTextEl(entry, isFirst) {
-  const wrap = document.createElement("div");
-  wrap.className = "entry-wrap";
+  const wrap = document.createElement("div"); wrap.className = "entry-wrap";
   if (entry.ts) {
-    const ts = document.createElement("div");
-    ts.className = "ts-label"; ts.textContent = entry.ts;
+    const ts = document.createElement("div"); ts.className = "ts-label"; ts.textContent = entry.ts;
     wrap.appendChild(ts);
   }
   const ta = document.createElement("textarea");
-  ta.className = "line"; ta.rows = 1;
-  ta.value = entry.content;
-  ta.placeholder = isFirst ? "What's on your mind…" : "";
-  ta.dataset.id = entry.id;
+  ta.className = "line"; ta.rows = 1; ta.value = entry.content;
+  ta.placeholder = isFirst ? "What's on your mind…" : ""; ta.dataset.id = entry.id;
   const autoGrow = () => { ta.style.height = "auto"; ta.style.height = ta.scrollHeight + "px"; };
   setTimeout(autoGrow, 0);
   ta.addEventListener("input",  () => { entry.content = ta.value; autoGrow(); updateStats(); });
@@ -589,79 +533,62 @@ function makeTextEl(entry, isFirst) {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       const newId = uid();
-      const newEntry = { id: newId, type: "text", content: "", ts: autoTs ? nowTs() : null };
       const i = entries.findIndex(x => x.id === entry.id);
-      entries.splice(i + 1, 0, newEntry);
-      render();
-      setTimeout(() => focusEntry(newId), 20);
+      entries.splice(i + 1, 0, { id: newId, type: "text", content: "", ts: autoTs ? nowTs() : null });
+      render(); setTimeout(() => focusEntry(newId), 20);
     }
-    if (e.key === "Backspace" && entry.content === "") {
-      e.preventDefault(); removeEntry(entry.id);
-    }
+    if (e.key === "Backspace" && entry.content === "") { e.preventDefault(); removeEntry(entry.id); }
   });
-  wrap.appendChild(ta);
-  return wrap;
+  wrap.appendChild(ta); return wrap;
 }
 
 function makePhotoEl(entry) {
-  const div = document.createElement("div");
-  div.className = "photo-entry";
-  const img = document.createElement("img");
-  img.src = entry.src; img.alt = entry.caption;
+  const div = document.createElement("div"); div.className = "photo-entry";
+  const img = document.createElement("img"); img.src = entry.src; img.alt = entry.caption;
   div.appendChild(img);
-  const cap = document.createElement("div");
-  cap.className = "photo-caption";
+  const cap = document.createElement("div"); cap.className = "photo-caption";
   cap.innerHTML = `<span>${entry.caption}${entry.ts ? ` · <span class="ts">${entry.ts}</span>` : ""}</span>`;
-  const rm = document.createElement("button");
-  rm.className = "remove-btn"; rm.textContent = "Remove";
+  const rm = document.createElement("button"); rm.className = "remove-btn"; rm.textContent = "Remove";
   rm.addEventListener("click", () => removeEntry(entry.id));
-  cap.appendChild(rm); div.appendChild(cap);
-  return div;
+  cap.appendChild(rm); div.appendChild(cap); return div;
 }
 
 function updateStats() {
   const words  = entries.filter(e=>e.type==="text").map(e=>e.content).join(" ").trim().split(/\s+/).filter(Boolean).length;
   const photos = entries.filter(e=>e.type==="photo").length;
-  let s = "";
-  if (words  > 0) s += `${words}w`;
-  if (photos > 0) s += ` · ${photos} 📷`;
+  let s = ""; if (words > 0) s += `${words}w`; if (photos > 0) s += ` · ${photos} 📷`;
   document.getElementById("stats").textContent = s;
 }
 
-// ── Initial entry ─────────────────────────────────────────────────────────────
+// ── Init ──────────────────────────────────────────────────────────────────────
 entries = [{ id: uid(), type: "text", content: "", ts: null }];
 render();
 
-// ── Ghost zone ────────────────────────────────────────────────────────────────
 document.getElementById("ghost").addEventListener("click", () => {
   const last = entries[entries.length - 1];
   if (last?.type === "text" && last.content.trim() === "") { focusEntry(last.id); }
   else {
-    const id = uid();
-    entries.push({ id, type: "text", content: "", ts: null });
-    render();
-    setTimeout(() => focusEntry(id), 20);
+    const id = uid(); entries.push({ id, type: "text", content: "", ts: null });
+    render(); setTimeout(() => focusEntry(id), 20);
   }
 });
 
 // ── Toolbar ───────────────────────────────────────────────────────────────────
 document.getElementById("btn-ts").addEventListener("click", () => {
-  const id = uid();
-  const baseId = focusedId || entries[entries.length - 1]?.id;
+  const id = uid(), baseId = focusedId || entries[entries.length-1]?.id;
   const i = entries.findIndex(e => e.id === baseId);
-  entries.splice(i + 1, 0, { id, type: "text", content: "", ts: nowTs() });
+  entries.splice(i+1, 0, { id, type:"text", content:"", ts:nowTs() });
   render(); setTimeout(() => focusEntry(id), 20);
 });
 document.getElementById("btn-auto").addEventListener("click", () => {
-  autoTs = !autoTs;
-  document.getElementById("btn-auto").classList.toggle("active", autoTs);
+  autoTs = !autoTs; document.getElementById("btn-auto").classList.toggle("active", autoTs);
 });
 document.getElementById("btn-photo").addEventListener("click", () => document.getElementById("file-input").click());
 document.getElementById("btn-cam").addEventListener("click",   () => document.getElementById("cam-input").click());
-document.getElementById("file-input").addEventListener("change", e => { insertPhoto(e.target.files[0], focusedId); e.target.value = ""; });
-document.getElementById("cam-input").addEventListener("change",  e => { insertPhoto(e.target.files[0], focusedId); e.target.value = ""; });
+document.getElementById("file-input").addEventListener("change", e => { insertPhoto(e.target.files[0], focusedId); e.target.value=""; });
+document.getElementById("cam-input").addEventListener("change",  e => { insertPhoto(e.target.files[0], focusedId); e.target.value=""; });
 document.getElementById("btn-save").addEventListener("click", () => document.getElementById("modal-bg").classList.add("show"));
-document.getElementById("modal-bg").addEventListener("click", e => { if (e.target === document.getElementById("modal-bg")) document.getElementById("modal-bg").classList.remove("show"); });
+document.getElementById("modal-bg").addEventListener("click",  e => { if (e.target===document.getElementById("modal-bg")) document.getElementById("modal-bg").classList.remove("show"); });
 document.getElementById("modal-cancel").addEventListener("click", () => document.getElementById("modal-bg").classList.remove("show"));
 
 // ── Drag & drop ───────────────────────────────────────────────────────────────
@@ -673,29 +600,18 @@ document.body.addEventListener("drop", e => {
   if (file) insertPhoto(file, focusedId);
 });
 
-// ── Save helpers ──────────────────────────────────────────────────────────────
+// ── Save ──────────────────────────────────────────────────────────────────────
 function buildHtmlBody() {
   return entries.map(e => {
-    if (e.type === "photo") return `\n  <figure>\n    <img src="${e.src}" alt="${e.caption.replace(/"/g,'&quot;')}">\n    <figcaption>📷 ${e.caption}${e.ts ? ` — ${e.ts}` : ""}</figcaption>\n  </figure>`;
+    if (e.type==="photo") return `\n  <figure>\n    <img src="${e.src}" alt="${e.caption.replace(/"/g,'&quot;')}">\n    <figcaption>📷 ${e.caption}${e.ts?` — ${e.ts}`:""}</figcaption>\n  </figure>`;
     const tsSpan = e.ts ? `<time>${e.ts}</time> ` : "";
     return `<p>${tsSpan}${e.content.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/\n/g,"<br>")}</p>`;
   }).join("\n");
 }
 function wrapHtml(body) {
-  return `<!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><title>${noteTitle}</title>
-<style>
-  *{box-sizing:border-box}body{font-family:Georgia,serif;max-width:680px;margin:48px auto;padding:0 24px;background:#fdf8f1;color:#2a1e10;line-height:1.8}
-  h1{font-size:26px;border-bottom:2px solid #e0d0b8;padding-bottom:12px;margin-bottom:28px}
-  p{margin:4px 0 10px;font-size:16px}time{font-size:11px;color:#b87a30;font-family:monospace;margin-right:8px}
-  figure{margin:20px 0}figure img{width:100%;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.12)}
-  figcaption{font-size:12px;color:#9a8060;margin-top:6px}
-  footer{margin-top:48px;font-size:11px;color:#c0a880;border-top:1px solid #e0d0b8;padding-top:12px}
-</style></head><body>
-<h1>${noteTitle}</h1>
-${body}
-<footer>Saved ${nowTs()}</footer>
-</body></html>`;
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>${noteTitle}</title>
+<style>*{box-sizing:border-box}body{font-family:Georgia,serif;max-width:680px;margin:48px auto;padding:0 24px;background:#fdf8f1;color:#2a1e10;line-height:1.8}h1{font-size:26px;border-bottom:2px solid #e0d0b8;padding-bottom:12px;margin-bottom:28px}p{margin:4px 0 10px;font-size:16px}time{font-size:11px;color:#b87a30;font-family:monospace;margin-right:8px}figure{margin:20px 0}figure img{width:100%;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.12)}figcaption{font-size:12px;color:#9a8060;margin-top:6px}footer{margin-top:48px;font-size:11px;color:#c0a880;border-top:1px solid #e0d0b8;padding-top:12px}</style>
+</head><body><h1>${noteTitle}</h1>${body}<footer>Saved ${nowTs()}</footer></body></html>`;
 }
 function trigger(content, name, mime) {
   const a = document.createElement("a");
@@ -708,10 +624,14 @@ document.getElementById("save-html").addEventListener("click", () => {
   document.getElementById("modal-bg").classList.remove("show");
   showToast("Saved as .html ✓");
 });
+document.getElementById("save-pdf").addEventListener("click", () => {
+  document.getElementById("modal-bg").classList.remove("show");
+  exportPdf();
+});
 document.getElementById("save-txt").addEventListener("click", () => {
   const lines = entries.map(e => {
-    if (e.type === "photo") return `[Photo: ${e.caption}${e.ts ? ` — ${e.ts}` : ""}]`;
-    return (e.ts ? `[${e.ts}]  ` : "") + e.content;
+    if (e.type==="photo") return `[Photo: ${e.caption}${e.ts?` — ${e.ts}`:""}]`;
+    return (e.ts?`[${e.ts}]  `:"") + e.content;
   }).join("\n");
   trigger(`${noteTitle}\n${"─".repeat(Math.min(noteTitle.length,40))}\n\n${lines}\n\nSaved ${nowTs()}`, `${slug(noteTitle)}.txt`, "text/plain");
   document.getElementById("modal-bg").classList.remove("show");
